@@ -1,19 +1,15 @@
 from sqlalchemy import String, Integer, create_engine, ForeignKey, Column, Table
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
-# create an engine
-
 Base = declarative_base()
 
-# the association table
-
+# association table
 bank_customer = Table(
     "bank_customer",
     Base.metadata,
-    Column("bank_id", Integer, ForeignKey("bank.id"), primary_key=True),
-    Column("customer_id", Integer, ForeignKey("customer.id"), primary_key=True)
-
-
+    Column("bank_id", Integer, ForeignKey("banks.id"), primary_key=True),
+    Column("customer_id", Integer, ForeignKey(
+        "customers.id"), primary_key=True)
 )
 
 # bank table
@@ -21,31 +17,30 @@ bank_customer = Table(
 
 class Bank(Base):
     __tablename__ = "banks"
-    # attributes of the table bank
-    id = Column(Integer, nullable=False)
+    id = Column(Integer, primary_key=True)
     bank_name = Column(String, nullable=False)
 
-    # many to many relationships
     customers = relationship(
-       "Customer",
-       secondary=bank_customer,
-       back_populates="banks"
-
+        "Customer",
+        secondary=bank_customer,
+        back_populates="banks"
     )
-# customers table
+
+# customer table
+
+
 class Customer(Base):
     __tablename__ = "customers"
-    # attributes of the customer table
     id = Column(Integer, primary_key=True)
-    customer_name = Column(String, nullable= False)
-
-    # creating the backpopulates to confirm the relationship
+    customer_name = Column(String, nullable=False)
 
     banks = relationship(
         "Bank",
         secondary=bank_customer,
         back_populates="customers"
     )
-    
-    # create engine
-    engine = create_engine("sqlite:///banks.db")
+
+
+# ✅ Engine and table creation AFTER class definitions
+engine = create_engine("sqlite:///banks.db", echo=True)
+Base.metadata.create_all(engine)
