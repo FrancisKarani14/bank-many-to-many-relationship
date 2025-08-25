@@ -26,4 +26,26 @@ class Bank(Base):
     bank_name = Column(String, nullable=False)
 
     # many to many relationships
+    customers = relationship(
+       "Customer",
+       secondary=bank_customer,
+       back_populates="banks"
+
+    )
+# customers table
+class Customer(Base):
+    __tablename__ = "customers"
+    # attributes of the customer table
+    id = Column(Integer, primary_key=True)
+    customer_name = Column(String, nullable= False)
+
+    # creating the backpopulates to confirm the relationship
+
+    banks = relationship(
+        "Bank",
+        secondary=bank_customer,
+        back_populates="customers"
+    )
     
+    # create engine
+    engine = create_engine("sqlite:///banks.db")
